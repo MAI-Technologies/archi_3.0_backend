@@ -22,29 +22,11 @@ chatbot.use(cors({
 }));
 
 chatbot.use(express.json({ type: ["application/json", "text/event-stream"] }));
-chatbot.use(cors({
-  credentials: true,
-  origin: ["http://localhost:5173", "http://127.0.0.1:5173"]
-}));
+
 chatbot.use(routes);
 
 // Default route
 chatbot.get("/", (req, res) => res.json({ status: "OK" }));
-
-chatbot.post("/openai", async (req, res) => {
-  try {
-    // Continually retrieve prompts from user and generate responses
-    const prompt = req.body.prompt;
-    const responseContent = await parseResponse(prompt);
-    // convos(); // TODO: CHANGE!--THIS IS JUST A TEMPORARY ENDPOINT FOR ACCESSING CONVOS
-    res.json({ response: responseContent }); // TODO: CONSIDER IF WE SHOULD OUTPUT USEFUL THINGS HERE
-  } catch (error) {
-    console.error("Error calling OpenAI:", error);
-    res.status(500).json({ error: "Failed to get a response from OpenAI" });
-    return;
-  }
-});
-
 
 // Start server
 initDatabase().then(async () => {

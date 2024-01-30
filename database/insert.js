@@ -1,3 +1,4 @@
+const { Conversation } = require("./schema/Conversation");
 const { Metrics } = require("./schema/Metrics");
 
 async function insertNewSession(sessionId) {
@@ -19,6 +20,38 @@ async function insertNewSession(sessionId) {
     }
 }
 
+async function insertNewConversation(sessionId, userId, firstUserMessage, tutorName, conversations) {
+    try {
+        await Conversation.create({
+            sessionId: sessionId,
+            userId: userId,
+            summary: firstUserMessage,
+            conversations: conversations,
+            tutorName: tutorName,
+        });
+    } catch (err) {
+        throw err;
+    }
+}
+
+async function appendConversation(sessionId, userId, userContent, botContent) {
+    try {
+        const conversation = await Conversation.findOne({ sessionId: sessionId });
+        if (!conversation) throw new Error("Couldn't find conversation");
+
+        conversation.conversations.push({ role: "user", content: userContent });
+        conversation.conversations.push({ role: "assistant", content: botContent });
+
+        await conversation.save();
+
+        return conversation;
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
     insertNewSession,
+    insertNewConversation,
+    appendConversation,
 }

@@ -5,6 +5,8 @@ const { archi_greeting, archi_system_message,
     hypatia_greeting, hypatia_system_message,
     mary_j_greeting, mary_j_system_message
 } = require("./config.json");
+const { fetchCurrentConversation } = require("../database/fetch.js");
+const { insertNewConversation } = require("../database/insert.js");
 
 const openAI = new OpenAI({ apiKey: process.env.OPEN_AI_API_KEY });
 
@@ -60,6 +62,7 @@ async function openAIController(req, res) {
     try {
         // Continually retrieve prompts from user and generate responses
         const prompt = req.body.prompt;
+        const userId = req.body.userId || null;
         const sessionId = req.body.sessionId;
         const tutor = req.body.tutor || "archi";
 
@@ -86,33 +89,73 @@ async function openAIController(req, res) {
             return res.end();
         }
 
-        // new session made by the user, create a new instance of chatgpt
-        if (!conversations[sessionId]) {
-            let greeting = "";
-            let system_message = "";
+        // the request is from a registered account
+        if (userId) {
+            // search for the sessionId in db
+            const currentConversation = await fetchCurrentConversation(sessionId);
 
-            switch (tutor.toLowerCase()) {
-                case "hypatia":
-                    greeting = hypatia_greeting;
-                    system_message = hypatia_system_message;
-                    break;
+            // append conversation if it exists
+            if (currentConversation) {
 
-                case "mary j.":
-                    greeting = mary_j_greeting;
-                    system_message = mary_j_system_message;
-                    break;
-
-                default:
-                    greeting = archi_greeting;
-                    system_message = archi_system_message;
-                    break;
             }
 
-            conversations[sessionId] = [
-                { role: "system", content: system_message },
-                { role: "assistant", content: greeting }
-            ]
+            // create a new db entry if does not exist
+            else {
+                let greeting = "";
+                let system_message = "";
+
+                switch (tutor.toLowerCase()) {
+                    case "hypatia":
+                        greeting = hypatia_greeting;
+                        system_message = hypatia_system_message;
+                        break;
+
+                    case "mary j.":
+                        greeting = mary_j_greeting;
+                        system_message = mary_j_system_message;
+                        break;
+
+                    default:
+                        greeting = archi_greeting;
+                        system_message = archi_system_message;
+                        break;
+                }
+
+                await insertNewConversation(sessionId, userId, prompt, tutor, [
+                    { role: "system", content: system_message },
+                    { role: "assistant", content: greeting }
+                ]);
+            }
+
         }
+
+        // // new session made by the user, create a new instance of chatgpt
+        // if (!conversations[sessionId]) {
+        //     let greeting = "";
+        //     let system_message = "";
+
+        //     switch (tutor.toLowerCase()) {
+        //         case "hypatia":
+        //             greeting = hypatia_greeting;
+        //             system_message = hypatia_system_message;
+        //             break;
+
+        //         case "mary j.":
+        //             greeting = mary_j_greeting;
+        //             system_message = mary_j_system_message;
+        //             break;
+
+        //         default:
+        //             greeting = archi_greeting;
+        //             system_message = archi_system_message;
+        //             break;
+        //     }
+
+        //     conversations[sessionId] = [
+        //         { role: "system", content: system_message },
+        //         { role: "assistant", content: greeting }
+        //     ]
+        // }
 
         const messageToGPT = [...conversations[sessionId], { "role": "user", "content": combinedInput }];
 

@@ -1,3 +1,4 @@
+const Conversation = require("./schema/Conversation");
 const { Metrics } = require("./schema/Metrics");
 
 async function fetchSession(sessionId) {
@@ -52,7 +53,19 @@ async function fetchSessionWithDates(startDate, endDate) {
     }
 }
 
+async function fetchCurrentConversation(sessionId) {
+    try {
+        const conversation = await Conversation.findOne(sessionId);
+        if (!conversation) return null;
+
+        return conversation;
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
     fetchSession,
     fetchSessionWithDates,
+    fetchCurrentConversation,
 }
