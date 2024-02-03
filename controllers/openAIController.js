@@ -84,7 +84,6 @@ async function openAIController(req, res) {
         // Refuse to flat out answer question if user has asked same question multiple times
         // TODO: Check if this actually needs to be outputted/ how
         if (questionCounter[prompt] >= 5) {
-            console.log("It seems you've asked about this topic multiple times. Please try a different question or rephrase.");
             res.write("It seems you've asked about this topic multiple times. Please try a different question or rephrase.");
             return res.end();
         }
@@ -121,41 +120,13 @@ async function openAIController(req, res) {
                         break;
                 }
 
-                await insertNewConversation(sessionId, userId, prompt, tutor, [
-                    { role: "system", content: system_message },
-                    { role: "assistant", content: greeting }
-                ]);
+                const newConversation = [{ role: "system", content: system_message },
+                { role: "assistant", content: greeting }, { role: "user", content: combinedInput }];
+
+                await insertNewConversation(sessionId, userId, prompt, tutor, newConversation);
             }
 
         }
-
-        // // new session made by the user, create a new instance of chatgpt
-        // if (!conversations[sessionId]) {
-        //     let greeting = "";
-        //     let system_message = "";
-
-        //     switch (tutor.toLowerCase()) {
-        //         case "hypatia":
-        //             greeting = hypatia_greeting;
-        //             system_message = hypatia_system_message;
-        //             break;
-
-        //         case "mary j.":
-        //             greeting = mary_j_greeting;
-        //             system_message = mary_j_system_message;
-        //             break;
-
-        //         default:
-        //             greeting = archi_greeting;
-        //             system_message = archi_system_message;
-        //             break;
-        //     }
-
-        //     conversations[sessionId] = [
-        //         { role: "system", content: system_message },
-        //         { role: "assistant", content: greeting }
-        //     ]
-        // }
 
         const messageToGPT = [...conversations[sessionId], { "role": "user", "content": combinedInput }];
 
