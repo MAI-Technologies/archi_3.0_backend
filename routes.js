@@ -10,7 +10,7 @@ router.post("/openai", openAIController);
 router.post("/metrics/sessionId", getMetricsWithSessionDataController);
 router.post("/metrics/dates", getMetricsWithDatesController);
 
-router.post("/user/find-user", findStudentController);
+router.get("/user/find-user", findStudentController);
 router.post("/user/add-user", addStudentController);
 // add-parent
 // find-parent

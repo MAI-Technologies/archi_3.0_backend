@@ -48,7 +48,6 @@ async function addStudentController(req, res) {
 
 }
 
-
 module.exports = {
     findStudentController,
     addStudentController,
