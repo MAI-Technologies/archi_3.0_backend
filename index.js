@@ -25,9 +25,6 @@ chatbot.use(express.json({ type: ["application/json", "text/event-stream"] }));
 
 chatbot.use(routes);
 
-// Default route
-chatbot.get("/", (req, res) => res.json({ status: "OK" }));
-
 // Start server
 initDatabase().then(async () => {
   await initCurriculum();

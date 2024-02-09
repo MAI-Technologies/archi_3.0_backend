@@ -1,5 +1,6 @@
 const { Conversation } = require("./schema/Conversation");
 const { Metrics } = require("./schema/Metrics");
+const { Student } = require("./schema/Student");
 
 async function insertNewSession(sessionId) {
     try {
@@ -15,6 +16,22 @@ async function insertNewSession(sessionId) {
             creationDate: new Date(currentDate),
         });
 
+    } catch (err) {
+        throw err;
+    }
+}
+
+async function insertStudent(userId, dob, firstName, lastName, email, signupType) {
+    try {
+        // create a new Student
+        await Student.create({
+            userId,
+            dob,
+            firstName,
+            lastName,
+            email,
+            signupType,
+        });
     } catch (err) {
         throw err;
     }
@@ -54,4 +71,5 @@ module.exports = {
     insertNewSession,
     insertNewConversation,
     appendConversation,
+    insertStudent,
 }
