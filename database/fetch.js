@@ -1,6 +1,8 @@
 const Conversation = require("./schema/Conversation");
 const { Metrics } = require("./schema/Metrics");
 const { Student } = require("./schema/Student");
+const { Parent } = require("./schema/Parent");
+const { Teacher } = require("./schema/Teacher");
 
 async function fetchSession(sessionId) {
     try {
@@ -63,6 +65,24 @@ async function fetchStudent(userId) {
     }
 }
 
+async function fetchParent(userId) {
+    try {
+        const user = await Parent.findOne({ userId: userId });
+        return user;
+    } catch (err) {
+        throw err;
+    }
+}
+
+async function fetchTeacher(userId) {
+    try {
+        const user = await Teacher.findOne({ userId: userId });
+        return user;
+    } catch (err) {
+        throw err;
+    }
+}
+
 async function fetchCurrentConversation(sessionId) {
     try {
         const conversation = await Conversation.findOne(sessionId);
@@ -79,4 +99,6 @@ module.exports = {
     fetchSessionWithDates,
     fetchCurrentConversation,
     fetchStudent,
+    fetchParent,
+    fetchTeacher,
 }
