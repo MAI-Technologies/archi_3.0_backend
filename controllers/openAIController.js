@@ -91,15 +91,17 @@ async function openAIController(req, res) {
         // the request is from a registered account
         if (userId) {
             // search for the sessionId in db
+            console.log(sessionId);
             const currentConversation = await fetchCurrentConversation(sessionId);
 
             // append conversation if it exists
             if (currentConversation) {
-
+                console.log("ENTERED CURRENT CONVERSATION");
             }
 
             // create a new db entry if does not exist
             else {
+                console.log("ENTERED NEW CONVO AGAIN");
                 let greeting = "";
                 let system_message = "";
 
@@ -122,12 +124,14 @@ async function openAIController(req, res) {
 
                 const newConversation = [{ role: "system", content: system_message },
                 { role: "assistant", content: greeting }, { role: "user", content: combinedInput }];
+                conversations[sessionId] = newConversation;
 
                 await insertNewConversation(sessionId, userId, prompt, tutor, newConversation);
             }
 
         }
 
+        console.log(conversations[sessionId]);
         const messageToGPT = [...conversations[sessionId], { "role": "user", "content": combinedInput }];
 
         const response = await openAI.chat.completions.create({

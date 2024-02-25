@@ -1,4 +1,4 @@
-const { fetchStudent, fetchParent, fetchTeacher } = require("../database/fetch");
+const { fetchStudent, fetchParent, fetchTeacher, fetchConvoHistory } = require("../database/fetch");
 const { insertStudent, insertParent, insertTeacher } = require("../database/insert");
 const { deleteStudent, deleteParent, deleteTeacher } = require("../database/delete");
 
@@ -193,6 +193,24 @@ async function deleteTeacherController(req, res) {
 
 }
 
+async function getConvoHistoryController(req, res) {
+    const { userId } = req.query;
+
+    if (!userId) return res.status(400).json({ message: "UserId is not provided" });
+
+    try {
+        // fetch the history based on userId
+        const convos = await fetchConvoHistory(userId);
+
+        return res.json({
+            convos: convos
+        });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: "Error fetching user information" });
+    }
+}
+
 module.exports = {
     findStudentController,
     addStudentController,
@@ -203,4 +221,5 @@ module.exports = {
     deleteStudentController,
     deleteParentController,
     deleteTeacherController,
+    getConvoHistoryController,
 }
