@@ -1,6 +1,6 @@
-const { fetchStudent, fetchParent, fetchTeacher, fetchConvoHistory } = require("../database/fetch");
-const { insertStudent, insertParent, insertTeacher } = require("../database/insert");
-const { deleteStudent, deleteParent, deleteTeacher } = require("../database/delete");
+const { fetchStudent, fetchParent, fetchTeacher, fetchConvoHistory, fetchCurrentConversation } = require("../database/fetch");
+const { insertStudent, insertParent, insertTeacher, insertNewConversation } = require("../database/insert");
+const { deleteStudent, deleteParent, deleteTeacher, deleteConversation } = require("../database/delete");
 
 async function findStudentController(req, res) {
     const { userId } = req.query;
@@ -193,9 +193,48 @@ async function deleteTeacherController(req, res) {
 
 }
 
+async function addConversationController(req, res) {
+    const sessionId = req.body.sessionId || null;
+    const userId = req.body.userId || null;
+    const summary = req.body.summary || null;
+    const conversations = req.body.conversations || null;
+    const tutorName = req.body.tutorName || null;
+
+    if (!sessionId) return res.status(400).json({ message: "SessionId not specified" });
+    if (!userId) return res.status(400).json({ message: "UserId not specified" });
+    if (!summary) return res.status(400).json({ message: "Summary not specified" });
+    if (!conversations) return res.status(400).json({ message: "Conversations not specified" });
+    if (!tutorName) return res.status(400).json({ message: "Tutor name not specified" });
+
+    try {
+        await insertNewConversation(sessionId, userId, summary, conversations, tutorName);
+        return res.json();
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: "An error occurred when adding user to database" });
+    }
+}
+
+async function deleteConversationController(req, res) {
+    const { sessionId } = req.query;
+
+    if (!sessionId) return res.status(400).json({ message: "SessionId is not provided" });
+
+    try {
+        // delete the conversation
+        const result = await deleteConversation(sessionId);
+        if (result.deletedCount == 0) return res.status(404).json({ message: "No such conversation" });
+
+        return res.status(200).json({ message: "Conversation deleted successfully" });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: "Error fetching user information" });
+    }
+}
+
 async function getConvoHistoryController(req, res) {
     const { userId } = req.query;
-
+    
     if (!userId) return res.status(400).json({ message: "UserId is not provided" });
 
     try {
@@ -211,6 +250,24 @@ async function getConvoHistoryController(req, res) {
     }
 }
 
+async function getCurrentConvoController(req, res) {
+    const { sessionId } = req.query;
+    
+    if (!sessionId) return res.status(400).json({ message: "SessionId is not provided" });
+
+    try {
+        // fetch the history based on sessionId
+        const convo = await fetchCurrentConversation(sessionId);
+
+        return res.json({
+            convo: convo
+        });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: "Error fetching convo information" });
+    }
+}
+
 module.exports = {
     findStudentController,
     addStudentController,
@@ -221,5 +278,8 @@ module.exports = {
     deleteStudentController,
     deleteParentController,
     deleteTeacherController,
+    deleteConversationController,
     getConvoHistoryController,
+    getCurrentConvoController,
+    addConversationController
 }
