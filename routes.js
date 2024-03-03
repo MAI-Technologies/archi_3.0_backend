@@ -21,7 +21,7 @@ router.post("/user/add-teacher", addTeacherController);
 router.delete("/user/delete-user", deleteStudentController);
 router.delete("/user/delete-parent", deleteParentController);
 router.delete("/user/delete-teacher", deleteTeacherController);
-router.delete("/user/deleter-convo", deleteConversationController); 
+router.delete("/user/delete-convo", deleteConversationController); 
 router.get("/user/get-history", getConvoHistoryController);
 router.get("/user/get-convo", getCurrentConvoController);
 router.post("/user/add-convo", addConversationController);

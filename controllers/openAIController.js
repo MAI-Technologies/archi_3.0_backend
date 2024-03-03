@@ -94,9 +94,20 @@ async function openAIController(req, res) {
             console.log(sessionId);
             const currentConversation = await fetchCurrentConversation(sessionId);
 
-            // append conversation if it exists
+            // append to newConversation if conversation exists and not properly initialized because it was pulled from an old conversation
             if (currentConversation) {
+                const convos = currentConversation.conversations;
 
+                conversations[sessionId] = [{ role: "system", content: convos[0].content }, { role: "assistant", content: convos[1].content }];
+                for(let i = 2; i < convos.length; i++) {
+                    const msg = convos[i].content;
+        
+                    if (convos[i].role === "assistant") {
+                        conversations[sessionId].push({role: "assistant", content: msg});
+                    } else {
+                        conversations[sessionId].push({role: "user", content: msg});
+                    }
+                }
             }
 
             // create a new db entry if does not exist
@@ -129,7 +140,6 @@ async function openAIController(req, res) {
 
         }
 
-        // !!! use map/loop to retrieve all data for conversations[sessionId] - this is to account for when a new convo is created from frontend and backend doesn't have record of previous convo
         const messageToGPT = [...conversations[sessionId], { "role": "user", "content": combinedInput }];
 
         const response = await openAI.chat.completions.create({
@@ -146,7 +156,7 @@ async function openAIController(req, res) {
             res.write(text);
         }
 
-        // update the conversation
+        // update the existing conversation
         conversations[sessionId] = [...messageToGPT, { "role": "assistant", "content": responseContent }];
         await appendConversation(sessionId, userId, prompt, responseContent);
 
