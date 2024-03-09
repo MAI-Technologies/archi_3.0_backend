@@ -4,7 +4,7 @@ const { openAIController } = require("./controllers/openAIController");
 const { getMetricsWithDatesController, getMetricsWithSessionDataController } = require("./controllers/metricsController");
 const { addStudentController, findStudentController, findParentController, addParentController, 
     findTeacherController, addTeacherController, deleteStudentController, deleteParentController, 
-    deleteTeacherController } = require("./controllers/userController");
+    deleteTeacherController, deleteConversationController, getConvoHistoryController, getCurrentConvoController, addConversationController } = require("./controllers/userController");
 
 router.get("/", (req, res) => res.json({ status: "OK" }));
 router.post("/openai", openAIController);
@@ -21,5 +21,9 @@ router.post("/user/add-teacher", addTeacherController);
 router.delete("/user/delete-user", deleteStudentController);
 router.delete("/user/delete-parent", deleteParentController);
 router.delete("/user/delete-teacher", deleteTeacherController);
+router.delete("/user/delete-convo", deleteConversationController); 
+router.get("/user/get-history", getConvoHistoryController);
+router.get("/user/get-convo", getCurrentConvoController);
+router.post("/user/add-convo", addConversationController);
 
 module.exports = router;

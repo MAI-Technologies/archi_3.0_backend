@@ -6,7 +6,7 @@ const { archi_greeting, archi_system_message,
     mary_j_greeting, mary_j_system_message
 } = require("./config.json");
 const { fetchCurrentConversation } = require("../database/fetch.js");
-const { insertNewConversation } = require("../database/insert.js");
+const { insertNewConversation, appendConversation } = require("../database/insert.js");
 
 const openAI = new OpenAI({ apiKey: process.env.OPEN_AI_API_KEY });
 
@@ -91,11 +91,23 @@ async function openAIController(req, res) {
         // the request is from a registered account
         if (userId) {
             // search for the sessionId in db
+            console.log(sessionId);
             const currentConversation = await fetchCurrentConversation(sessionId);
 
-            // append conversation if it exists
+            // append to newConversation if conversation exists and not properly initialized because it was pulled from an old conversation
             if (currentConversation) {
+                const convos = currentConversation.conversations;
 
+                conversations[sessionId] = [{ role: "system", content: convos[0].content }, { role: "assistant", content: convos[1].content }];
+                for(let i = 2; i < convos.length; i++) {
+                    const msg = convos[i].content;
+        
+                    if (convos[i].role === "assistant") {
+                        conversations[sessionId].push({role: "assistant", content: msg});
+                    } else {
+                        conversations[sessionId].push({role: "user", content: msg});
+                    }
+                }
             }
 
             // create a new db entry if does not exist
@@ -120,8 +132,8 @@ async function openAIController(req, res) {
                         break;
                 }
 
-                const newConversation = [{ role: "system", content: system_message },
-                { role: "assistant", content: greeting }, { role: "user", content: combinedInput }];
+                const newConversation = [{ role: "system", content: system_message }, { role: "assistant", content: greeting }];
+                conversations[sessionId] = newConversation;
 
                 await insertNewConversation(sessionId, userId, prompt, tutor, newConversation);
             }
@@ -144,8 +156,9 @@ async function openAIController(req, res) {
             res.write(text);
         }
 
-        // update the conversation
+        // update the existing conversation
         conversations[sessionId] = [...messageToGPT, { "role": "assistant", "content": responseContent }];
+        await appendConversation(sessionId, userId, prompt, responseContent);
 
         const end = new Date().getTime();
 
