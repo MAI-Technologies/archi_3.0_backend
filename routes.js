@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { openAIController } = require("./controllers/openAIController");
-const { getMetricsWithDatesController, getMetricsWithSessionDataController, updateVisitorCountController, updateVisitorCountForSignInController, updateVisitorCountForMakingAnAccountController, updateTotalCalculatorClicksController } = require("./controllers/metricsController");
+const { getMetricsWithDatesController, getMetricsWithSessionDataController, updateVisitorCountController, updateVisitorCountForSignInController, updateVisitorCountForMakingAnAccountController, updateTotalCalculatorClicksController, verifyPasswordController } = require("./controllers/metricsController");
 const { addStudentController, findStudentController, findParentController, addParentController,
     findTeacherController, addTeacherController, deleteStudentController, deleteParentController,
     deleteTeacherController, deleteConversationController, getConvoHistoryController, getCurrentConvoController, addConversationController } = require("./controllers/userController");
@@ -15,7 +15,7 @@ router.get("/metrics/updateVisitorCount", updateVisitorCountController);
 router.get("/metrics/updateVisitorCountForSignIn", updateVisitorCountForSignInController);
 router.get("/metrics/updateVisitorCountForMakingAnAccount", updateVisitorCountForMakingAnAccountController);
 router.get("/metrics/updateTotalCalculatorClicks", updateTotalCalculatorClicksController);
-
+router.post("/metrics/password", verifyPasswordController);
 
 router.get("/user/find-user", findStudentController);
 router.post("/user/add-user", addStudentController);

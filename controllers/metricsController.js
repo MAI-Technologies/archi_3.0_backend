@@ -5,6 +5,18 @@ async function getMetricsWithSessionDataController(req, res) {
     return res.status(501).send();
 }
 
+async function verifyPasswordController(req, res) {
+    const password = req.body.password;
+
+    if (!password) return res.status(401).send();
+
+    if (password === "@rchIm3d*s") {
+        return res.send();
+    }
+
+    return res.status(401).send();
+}
+
 async function getMetricsWithDatesController(req, res) {
     const rawStartDate = req.body.startDate;
     const rawEndDate = req.body.endDate;
@@ -79,5 +91,6 @@ module.exports = {
     updateVisitorCountController,
     updateVisitorCountForSignInController,
     updateVisitorCountForMakingAnAccountController,
-    updateTotalCalculatorClicksController
+    updateTotalCalculatorClicksController,
+    verifyPasswordController,
 }
