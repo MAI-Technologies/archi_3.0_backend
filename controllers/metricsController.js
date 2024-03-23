@@ -1,4 +1,5 @@
 const { fetchSessionWithDates } = require("../database/fetch");
+const { increaseTotalVisitors, increaseTotalVisitorsThatSignIn, increaseTotalVisitorsThatMadeAnAccount, increaseTotalCalculatorClicks } = require("../database/insert");
 
 async function getMetricsWithSessionDataController(req, res) {
     return res.status(501).send();
@@ -34,7 +35,49 @@ async function getMetricsWithDatesController(req, res) {
 
 }
 
+async function updateVisitorCountController(_, res) {
+    // update the visitor count in the db
+    try {
+        await increaseTotalVisitors();
+        return res.send();
+    } catch (err) {
+        return res.status(500).json({ status: "Error while fetching stats" });
+    }
+}
+
+async function updateVisitorCountForSignInController(_, res) {
+    // update the visitor count in the db
+    try {
+        await increaseTotalVisitorsThatSignIn();
+        return res.send();
+    } catch (err) {
+        return res.status(500).json({ status: "Error while fetching stats" });
+    }
+}
+
+async function updateVisitorCountForMakingAnAccountController(_, res) {
+    try {
+        await increaseTotalVisitorsThatMadeAnAccount();
+        return res.send();
+    } catch (err) {
+        return res.status(500).json({ status: "Error while fetching stats" });
+    }
+}
+
+async function updateTotalCalculatorClicksController(_, res) {
+    try {
+        await increaseTotalCalculatorClicks();
+        return res.send();
+    } catch (err) {
+        return res.status(500).json({ status: "Error while fetching stats" });
+    }
+}
+
 module.exports = {
     getMetricsWithSessionDataController,
-    getMetricsWithDatesController
+    getMetricsWithDatesController,
+    updateVisitorCountController,
+    updateVisitorCountForSignInController,
+    updateVisitorCountForMakingAnAccountController,
+    updateTotalCalculatorClicksController
 }

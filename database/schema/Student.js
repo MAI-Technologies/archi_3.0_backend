@@ -30,7 +30,12 @@ const StudentSchema = new mongoose.Schema({
     signupType: {
         type: String,
         required: true,
-    }
+    },
+
+    lastActiveDate: {
+        type: Date,
+    },
+
 }, { timestamps: true });
 
 module.exports = {
