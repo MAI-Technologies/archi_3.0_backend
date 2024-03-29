@@ -74,6 +74,23 @@ async function openAIController(req, res) {
         const monologue = insertMonologue(prompt);
         const combinedInput = `${prompt} <MONOLOGUE>${monologue}</MONOLOGUE>`;
 
+        const mod = await fetch('https://api.openai.com/v1/moderations', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${process.env.OPEN_AI_API_KEY}`,
+            },
+            body: JSON.stringify({ input: prompt }),
+        });
+
+        const modData = await mod.json();
+        console.log(modData);
+        
+        if (modData.results[0].flagged) {
+            res.write("Message contains inappropriate language.");
+            return res.end();
+        }
+
         // Move question counter based on if question is repeated or not
         if (prompt === previousPrompt) {
             questionCounter[prompt] = (questionCounter[prompt] || 0) + 1;
