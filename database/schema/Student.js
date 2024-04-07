@@ -36,6 +36,14 @@ const StudentSchema = new mongoose.Schema({
         type: Date,
     },
 
+    firstChatbotInteractionDate: {
+        type: Date
+    },
+
+    userCameBack: {
+        type: Boolean,
+    }
+
 }, { timestamps: true });
 
 module.exports = {

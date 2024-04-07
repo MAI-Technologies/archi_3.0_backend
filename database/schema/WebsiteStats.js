@@ -27,6 +27,10 @@ const WebsiteStatsSchema = new mongoose.Schema({
 
     userReturnToChatbotAfterFirstInteraction: {
         type: Number,
+    },
+
+    userWhoReturnToChatbotAfter24InitialConversation: {
+        type: Number,
     }
 
 

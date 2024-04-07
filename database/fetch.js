@@ -17,6 +17,18 @@ async function fetchSession(sessionId) {
     }
 }
 
+async function fetchAllUsers() {
+    try {
+        const users = await Student.find({});
+
+        if (users === null) return [];
+
+        return users;
+    } catch (err) {
+        throw err;
+    }
+}
+
 async function fetchSessionWithDates(startDate, endDate) {
     try {
         const res = await Metrics.find({});
@@ -62,6 +74,18 @@ async function fetchStudent(userId) {
     try {
         const user = await Student.findOne({ userId: userId });
         return user;
+    } catch (err) {
+        throw err;
+    }
+}
+
+async function fetchAllConversations() {
+    try {
+        const conversations = await Conversation.find({});
+
+        if (!conversations) return [];
+
+        return conversations;
     } catch (err) {
         throw err;
     }
@@ -126,8 +150,10 @@ module.exports = {
     fetchSessionWithDates,
     fetchCurrentConversation,
     fetchStudent,
+    fetchAllUsers,
     fetchParent,
     fetchTeacher,
     fetchConvoHistory,
     fetchWebStats,
+    fetchAllConversations,
 }

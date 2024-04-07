@@ -37,6 +37,7 @@ async function insertStudent(userId, dob, firstName, lastName, email, signupType
             signupType,
             lastActiveDate: new Date(),
             usedChatbotBefore: false,
+            userCameBack: false,
         });
     } catch (err) {
         throw err;
@@ -111,7 +112,8 @@ async function createWebStatsTable() {
             totalNumberOfVisitorsWhoMadeAnAccount: 0,
             totalCalculatorClicks: 0,
             chatbotResponseTimes: [],
-            totalChatbotResponseTimes: 0
+            totalChatbotResponseTimes: 0,
+            userWhoReturnToChatbotAfter24InitialConversation: 0,
         });
     } catch (err) {
         throw err;
@@ -179,6 +181,25 @@ async function updateUserLastActiveDate(userId) {
         if (!user) throw new Error("Couldn't find user");
 
         user.lastActiveDate = new Date();
+
+        if (!user.firstChatbotInteractionDate) user.firstChatbotInteractionDate = new Date();
+        else {
+            const currentDate = new Date();
+
+            const diffInMilliseconds = currentDate - user.firstChatbotInteractionDate;
+
+            const diffInHours = diffInMilliseconds / (1000 * 60 * 60);
+
+            if (diffInHours > 24) {
+                const stats = await WebsiteStats.find();
+
+                if (stats.length != 0 && !user.userCameBack) {
+                    stats[0].userWhoReturnToChatbotAfter24InitialConversation += 1;
+                    user.userCameBack = true;
+                    await stats[0].save();
+                }
+            }
+        }
 
         await user.save();
 
