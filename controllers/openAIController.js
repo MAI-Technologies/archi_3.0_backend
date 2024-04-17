@@ -142,11 +142,14 @@ async function openAIController(req, res) {
 
         const messageToGPT = [...conversations[sessionId], { "role": "user", "content": combinedInput }];
 
-        const response = await openAI.chat.completions.create({
-            model: 'gpt-4-1106-preview',
-            messages: messageToGPT,
-            stream: true,
-        });
+        const response = await openAI.chat.completions.create( 
+            {
+                model: 'gpt-4-1106-preview',
+                messages: messageToGPT,
+                stream: true,
+            },
+            { responseType: 'stream' }
+        );
 
         let responseContent = "";
 
@@ -154,6 +157,7 @@ async function openAIController(req, res) {
             const text = chunk.choices[0]?.delta?.content || "";
             responseContent += text;
             res.write(text);
+            console.log(text);
         }
 
         // update the existing conversation
