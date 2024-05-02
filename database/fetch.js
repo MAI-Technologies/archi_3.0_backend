@@ -3,6 +3,8 @@ const { Metrics } = require("./schema/Metrics");
 const { Student } = require("./schema/Student");
 const { Parent } = require("./schema/Parent");
 const { Teacher } = require("./schema/Teacher");
+const { WebsiteStats } = require("./schema/WebsiteStats");
+const { createWebStatsTable } = require("./insert");
 
 async function fetchSession(sessionId) {
     try {
@@ -12,6 +14,18 @@ async function fetchSession(sessionId) {
     } catch (err) {
         console.error(err);
         return null;
+    }
+}
+
+async function fetchAllUsers() {
+    try {
+        const users = await Student.find({});
+
+        if (users === null) return [];
+
+        return users;
+    } catch (err) {
+        throw err;
     }
 }
 
@@ -65,6 +79,18 @@ async function fetchStudent(userId) {
     }
 }
 
+async function fetchAllConversations() {
+    try {
+        const conversations = await Conversation.find({});
+
+        if (!conversations) return [];
+
+        return conversations;
+    } catch (err) {
+        throw err;
+    }
+}
+
 async function fetchParent(userId) {
     try {
         const user = await Parent.findOne({ userId: userId });
@@ -96,7 +122,7 @@ async function fetchCurrentConversation(sessionId) {
 
 async function fetchConvoHistory(userId) {
     try {
-        const conversations = await Conversation.find({userId: userId});
+        const conversations = await Conversation.find({ userId: userId });
         if (!conversations) return null;
 
         return conversations;
@@ -105,12 +131,29 @@ async function fetchConvoHistory(userId) {
     }
 }
 
+async function fetchWebStats() {
+    try {
+        const stats = await WebsiteStats.find();
+
+        if (stats.length == 0) {
+            await createWebStatsTable();
+            return await WebsiteStats.find()[0];
+        }
+
+        return stats[0];
+    } catch (err) {
+        throw err;
+    }
+}
 module.exports = {
     fetchSession,
     fetchSessionWithDates,
     fetchCurrentConversation,
     fetchStudent,
+    fetchAllUsers,
     fetchParent,
     fetchTeacher,
     fetchConvoHistory,
+    fetchWebStats,
+    fetchAllConversations,
 }

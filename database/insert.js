@@ -3,6 +3,8 @@ const { Metrics } = require("./schema/Metrics");
 const { Student } = require("./schema/Student");
 const { Parent } = require("./schema/Parent");
 const { Teacher } = require("./schema/Teacher");
+const { WebsiteStats } = require("./schema/WebsiteStats");
+const { fetchWebStats } = require("./fetch");
 
 async function insertNewSession(sessionId) {
     try {
@@ -33,6 +35,9 @@ async function insertStudent(userId, dob, firstName, lastName, email, signupType
             lastName,
             email,
             signupType,
+            lastActiveDate: new Date(),
+            usedChatbotBefore: false,
+            userCameBack: false,
         });
     } catch (err) {
         throw err;
@@ -99,6 +104,110 @@ async function appendConversation(sessionId, userId, userContent, botContent) {
     }
 }
 
+async function createWebStatsTable() {
+    try {
+        await WebsiteStats.create({
+            totalNumberOfVisitors: 0,
+            totalNumberOfVisitorsWhoClickedOnGetStarted: 0,
+            totalNumberOfVisitorsWhoMadeAnAccount: 0,
+            totalCalculatorClicks: 0,
+            chatbotResponseTimes: [],
+            totalChatbotResponseTimes: 0,
+            userWhoReturnToChatbotAfter24InitialConversation: 0,
+        });
+    } catch (err) {
+        throw err;
+    }
+}
+
+async function increaseTotalVisitors() {
+    try {
+        const stats = await WebsiteStats.find();
+
+        if (stats.length == 0) throw new Error("Couldn't find stats");
+
+        stats[0].totalNumberOfVisitors += 1;
+        await stats[0].save();
+
+    } catch (err) {
+        throw err;
+    }
+}
+
+async function increaseTotalVisitorsThatSignIn() {
+    try {
+        const stats = await WebsiteStats.find();
+
+        if (stats.length == 0) throw new Error("Couldn't find stats");
+
+        stats[0].totalNumberOfVisitorsWhoClickedOnGetStarted += 1;
+        await stats[0].save();
+
+    } catch (err) {
+        throw err;
+    }
+}
+
+async function increaseTotalVisitorsThatMadeAnAccount() {
+    try {
+        const stats = await WebsiteStats.find();
+
+        if (stats.length == 0) throw new Error("Couldn't find stats");
+
+        stats[0].totalNumberOfVisitorsWhoMadeAnAccount += 1;
+        await stats[0].save();
+
+    } catch (err) {
+        throw err;
+    }
+}
+
+async function increaseTotalCalculatorClicks() {
+    try {
+        const stats = await WebsiteStats.find();
+        if (stats.length == 0) throw new Error("Couldn't find stats");
+
+        stats[0].totalCalculatorClicks += 1;
+        await stats[0].save();
+    } catch (err) {
+        throw err;
+    }
+}
+
+async function updateUserLastActiveDate(userId) {
+    try {
+        const user = await Student.findOne({ userId: userId });
+
+        if (!user) throw new Error("Couldn't find user");
+
+        user.lastActiveDate = new Date();
+
+        if (!user.firstChatbotInteractionDate) user.firstChatbotInteractionDate = new Date();
+        else {
+            const currentDate = new Date();
+
+            const diffInMilliseconds = currentDate - user.firstChatbotInteractionDate;
+
+            const diffInHours = diffInMilliseconds / (1000 * 60 * 60);
+
+            if (diffInHours > 24) {
+                const stats = await WebsiteStats.find();
+
+                if (stats.length != 0 && !user.userCameBack) {
+                    stats[0].userWhoReturnToChatbotAfter24InitialConversation += 1;
+                    user.userCameBack = true;
+                    await stats[0].save();
+                }
+            }
+        }
+
+        await user.save();
+
+    } catch (err) {
+        throw err;
+    }
+}
+
 module.exports = {
     insertNewSession,
     insertNewConversation,
@@ -106,4 +215,10 @@ module.exports = {
     insertStudent,
     insertParent,
     insertTeacher,
+    createWebStatsTable,
+    increaseTotalVisitors,
+    increaseTotalVisitorsThatSignIn,
+    increaseTotalVisitorsThatMadeAnAccount,
+    increaseTotalCalculatorClicks,
+    updateUserLastActiveDate,
 }
