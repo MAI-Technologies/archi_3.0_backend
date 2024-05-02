@@ -1,4 +1,4 @@
-const { Curriculum } = require("./schema/curriculum.js");
+const { Curriculum } = require("./schema/Curriculum.js");
 
 async function populateAlgebraI() {
     await Curriculum.create({
