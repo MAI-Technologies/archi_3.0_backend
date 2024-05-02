@@ -27,6 +27,14 @@ async function updateMetricsFromDatabase(sessionId, totalMessageSent, totalMessa
 
     await session.save();
 
+    const websiteStat = await db.fetchWebStats();
+    websiteStat.chatbotResponseTimes.push(responseTime);
+    console.log(responseTime);
+    console.log(websiteStat.totalChatbotResponseTimes);
+    websiteStat.totalChatbotResponseTimes += responseTime;
+
+    await websiteStat.save();
+
     console.log(session);
 }
 

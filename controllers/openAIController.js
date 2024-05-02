@@ -6,7 +6,7 @@ const { archi_greeting, archi_system_message,
     mary_j_greeting, mary_j_system_message
 } = require("./config.json");
 const { fetchCurrentConversation } = require("../database/fetch.js");
-const { insertNewConversation, appendConversation } = require("../database/insert.js");
+const { insertNewConversation, appendConversation, updateUserLastActiveDate } = require("../database/insert.js");
 
 const openAI = new OpenAI({ apiKey: process.env.OPEN_AI_API_KEY });
 
@@ -99,13 +99,13 @@ async function openAIController(req, res) {
                 const convos = currentConversation.conversations;
 
                 conversations[sessionId] = [{ role: "system", content: convos[0].content }, { role: "assistant", content: convos[1].content }];
-                for(let i = 2; i < convos.length; i++) {
+                for (let i = 2; i < convos.length; i++) {
                     const msg = convos[i].content;
-        
+
                     if (convos[i].role === "assistant") {
-                        conversations[sessionId].push({role: "assistant", content: msg});
+                        conversations[sessionId].push({ role: "assistant", content: msg });
                     } else {
-                        conversations[sessionId].push({role: "user", content: msg});
+                        conversations[sessionId].push({ role: "user", content: msg });
                     }
                 }
             }
@@ -165,6 +165,8 @@ async function openAIController(req, res) {
         const elapsedTime = end - start;
         await updateMetricsFromDatabase(sessionId, session.totalMessageSent + 1, session.totalMessageReceived + 1, prompt, responseContent, elapsedTime);
 
+        // update user last active date
+        await updateUserLastActiveDate(userId);
         res.end();
 
     } catch (error) {

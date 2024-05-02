@@ -1,6 +1,7 @@
 const initDatabase = require("./init");
-const { fetchSession } = require("./fetch");
+const { fetchSession, fetchWebStats } = require("./fetch");
 const { insertNewSession } = require("./insert");
+
 
 
 // Call the initDatabase function and handle the promise
@@ -17,4 +18,5 @@ module.exports = {
     initDatabase,
     fetchSession,
     insertNewSession,
+    fetchWebStats,
 }

@@ -8,6 +8,7 @@ const initCurriculum = require("./database/initCurriculum.js");
 require('dotenv').config();
 
 const routes = require("./routes");
+const initMetrics = require("./database/initMetrics.js");
 
 // Set up port to listen
 const PORT = process.env.PORT || 3001;
@@ -27,12 +28,11 @@ chatbot.use(routes);
 
 // Start server
 initDatabase().then(async () => {
-  await initCurriculum();
+  // await initCurriculum();
+  await initMetrics();
 
   chatbot.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`);
-    console.log(`Server Up`);
-    // console.log("Greeting: ", greet()) // Greet user BEFORE user makes requests
   });
 }).catch(err => {
   console.log(`Error connecting to database`);

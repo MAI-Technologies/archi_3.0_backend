@@ -30,7 +30,20 @@ const StudentSchema = new mongoose.Schema({
     signupType: {
         type: String,
         required: true,
+    },
+
+    lastActiveDate: {
+        type: Date,
+    },
+
+    firstChatbotInteractionDate: {
+        type: Date
+    },
+
+    userCameBack: {
+        type: Boolean,
     }
+
 }, { timestamps: true });
 
 module.exports = {
